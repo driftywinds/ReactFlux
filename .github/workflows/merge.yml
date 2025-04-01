@@ -11,30 +11,33 @@ on:
         default: "main"  # Default to 'main' if not specified
 
 jobs:
-  sync-fork:
+  sync-branch:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # Needed to push changes
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Get complete history for merging
+          fetch-depth: 0  # Get full history
 
-      - name: Add upstream remote # CHANGE THE REPO WHEN MIGRATING THIS WORKFLOW
+      - name: Add upstream remote
         run: |
           git remote add upstream https://github.com/electh/ReactFlux.git
           git fetch upstream
 
-      - name: Merge upstream changes # CHANGE THE NAME OF THE BRANCH TWICE
+      - name: Merge upstream changes into selected branch
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           
-          # Try to merge - this will fail if there are conflicts
-          git checkout main
-          git merge upstream/main --no-ff --no-edit --strategy-option=theirs
+          BRANCH="${{ github.event.inputs.branch || 'main' }}"  # Use input or default to 'main'
+
+          git checkout $BRANCH
+          git merge upstream/$BRANCH --no-ff --no-edit --strategy-option=theirs
 
       - name: Push changes
-        run: git push origin main # CHANGE THE NAME OF THE BRANCH
+        run: |
+          BRANCH="${{ github.event.inputs.branch || 'main' }}"
+          git push origin $BRANCH
