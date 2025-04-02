@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      workflows: write  # Add this to allow modifying workflow files
 
     steps:
       - name: Checkout repository
