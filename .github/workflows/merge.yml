@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      workflows: write  # Add this to allow modifying workflow files
 
     steps:
       - name: Checkout repository
@@ -39,6 +38,8 @@ jobs:
           git merge upstream/$BRANCH --no-ff --no-edit --strategy-option=theirs
 
       - name: Push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Use the PAT token
         run: |
           BRANCH="${{ github.event.inputs.branch || 'main' }}"
-          git push origin $BRANCH
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git $BRANCH
